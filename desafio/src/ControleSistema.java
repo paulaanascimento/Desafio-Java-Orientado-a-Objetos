@@ -7,20 +7,24 @@ public class ControleSistema {
     private static Map<String, Vendedor> vendedoresCadastrados = new HashMap<>();
     private static List<Vendas> vendasCadastradas = new ArrayList<>();
 
-    public static void cadastrarVenda(){
+    public static void cadastrarVenda() {
         System.out.println("~~~~~~Cadastrando Venda~~~~~~");
         System.out.print("Informe o CPF do cliente: ");
         String cpf = entrada.nextLine();
 
-        if(!clientesCadastrados.containsKey(cpf)){
+        if (!clientesCadastrados.containsKey(cpf)) {
             throw new UnsupportedOperationException("Cliente não encontrado! Realize o cadastro antes de prosseguir\n");
         }
 
         System.out.print("Infome o e-mail do vendedor: ");
         String email = entrada.nextLine();
 
-        if(!vendedoresCadastrados.containsKey(email)){
+        if (!vendedoresCadastrados.containsKey(email)) {
             throw new UnsupportedOperationException("Vendedor não encontrado! Realize o cadastro antes de prosseguir\n");
+        }
+
+        if (clientesCadastrados.get(cpf).getCpf().equals(vendedoresCadastrados.get(email).getCpf())) {
+            throw new UnsupportedOperationException("Não é permitido vender para si mesmo!\n");
         }
 
         System.out.print("Infome o código da venda: ");
@@ -94,8 +98,8 @@ public class ControleSistema {
             System.out.println("~~~~~~Listando todas as vendas cadastradas~~~~~~");
             for (Vendas vendas: vendasCadastradas) {
                 System.out.print("Vendedor: " + vendas.getVendedor().getNome() +
-                        "\t| Cliente: " + vendas.getCliente().getNome() +
-                        "\t| Codigo: " + vendas.getCodigo());
+                                 "\t| Cliente: " + vendas.getCliente().getNome() +
+                                 "\t| Codigo: " + vendas.getCodigo());
                 System.out.print("\t| Produtos: ");
                 for(int i = 0; i < vendas.getListaProdutos().size(); i++){
                     System.out.print(vendas.getListaProdutos().get(i));{
@@ -105,7 +109,7 @@ public class ControleSistema {
                     }
                 }
                 System.out.println("\t| Preço Total: " + vendas.getTotalCompra() +
-                        "\t| Data de Registro: " + vendas.getDataRegistro());
+                                   "\t| Data de Registro: " + vendas.getDataRegistro());
 
             }
         }
@@ -118,8 +122,8 @@ public class ControleSistema {
             System.out.println("~~~~~~Listando todas as vendas cadastradas~~~~~~");
             for (Vendas vendas: listaVendas) {
                 System.out.print("Vendedor: " + vendas.getVendedor().getNome() +
-                        "\t| Cliente: " + vendas.getCliente().getNome() +
-                        "\t| Codigo: " + vendas.getCodigo());
+                                 "\t| Cliente: " + vendas.getCliente().getNome() +
+                                 "\t| Codigo: " + vendas.getCodigo());
                 System.out.print("\t| Produtos: ");
                 for(int i = 0; i < vendas.getListaProdutos().size(); i++){
                     System.out.print(vendas.getListaProdutos().get(i));{
@@ -129,7 +133,7 @@ public class ControleSistema {
                     }
                 }
                 System.out.println("\t| Preço Total: " + vendas.getTotalCompra() +
-                        "\t| Data de Registro: " + vendas.getDataRegistro());
+                                   "\t| Data de Registro: " + vendas.getDataRegistro());
             }
         }
     }
