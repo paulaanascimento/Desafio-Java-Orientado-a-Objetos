@@ -1,3 +1,10 @@
+package usercase;
+
+import model.Cliente;
+import model.Produto;
+import model.Vendas;
+import model.Vendedor;
+
 import java.util.*;
 
 public class ControleSistema {
@@ -146,7 +153,7 @@ public class ControleSistema {
                 System.out.println("\nQuantidade Total de Compras: " + listaVendas.size());
                 System.out.println("Valor Total das Compras: " + soma);
             } else if(tipo.equals("Vendedor")) {
-                System.out.println("\nQuantidade Total de Vendas: " + listaVendas.size());
+                System.out.println("\nQuantidade Total de model.Vendas: " + listaVendas.size());
                 System.out.println("Valor Total das Vendas: " + soma);
             }
         }
