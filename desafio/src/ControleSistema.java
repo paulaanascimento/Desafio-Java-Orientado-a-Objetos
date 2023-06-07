@@ -115,7 +115,7 @@ public class ControleSistema {
         }
     }
 
-    private static void listarVendas(List<Vendas> listaVendas){
+    private static void listarVendas(List<Vendas> listaVendas, String tipo){
         if(listaVendas.isEmpty()){
             System.out.println("Nenhuma venda foi cadastrada!");
         } else {
@@ -134,6 +134,20 @@ public class ControleSistema {
                 }
                 System.out.println("\t| Preço Total: " + vendas.getTotalCompra() +
                                    "\t| Data de Registro: " + vendas.getDataRegistro());
+            }
+
+            double soma = 0;
+
+            for(Vendas venda : listaVendas){
+                soma = soma + venda.getTotalCompra();
+            }
+
+            if(tipo.equals("Cliente")){
+                System.out.println("\nQuantidade Total de Compras: " + listaVendas.size());
+                System.out.println("Valor Total das Compras: " + soma);
+            } else if(tipo.equals("Vendedor")) {
+                System.out.println("\nQuantidade Total de Vendas: " + listaVendas.size());
+                System.out.println("Valor Total das Vendas: " + soma);
             }
         }
     }
@@ -239,9 +253,9 @@ public class ControleSistema {
         String cpf = entrada.nextLine();
 
         if(!clientesCadastrados.containsKey(cpf)){
-            throw new IllegalArgumentException("Cliente não encontrado!");
+            throw new IllegalArgumentException("Cliente não encontrado!\n");
         } else {
-            listarVendas(clientesCadastrados.get(cpf).getListaVendas());
+            listarVendas(clientesCadastrados.get(cpf).getListaVendas(), "Cliente");
         }
     }
 
@@ -258,9 +272,9 @@ public class ControleSistema {
         }while (!email.contains("@"));
 
         if(!vendedoresCadastrados.containsKey(email)){
-            throw new IllegalArgumentException("Vendedor não encontrado!");
+            throw new IllegalArgumentException("Vendedor não encontrado!\n");
         } else {
-            listarVendas(vendedoresCadastrados.get(email).getListaVendas());
+            listarVendas(vendedoresCadastrados.get(email).getListaVendas(), "Vendedor");
         }
     }
 }
