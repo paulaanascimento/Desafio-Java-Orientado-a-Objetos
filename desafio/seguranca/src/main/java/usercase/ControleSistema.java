@@ -1,10 +1,14 @@
 package usercase;
 
+import br.com.caelum.stella.validation.CPFValidator;
 import model.Cliente;
 import model.Produto;
 import model.Vendas;
 import model.Vendedor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.util.*;
 
 public class ControleSistema {
@@ -13,18 +17,37 @@ public class ControleSistema {
     private static Map<String, Cliente> clientesCadastrados = new HashMap<>();
     private static Map<String, Vendedor> vendedoresCadastrados = new HashMap<>();
     private static List<Vendas> vendasCadastradas = new ArrayList<>();
+    private static final String senhaValida = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$";
 
     public static void cadastrarVenda() {
         System.out.println("~~~~~~Cadastrando Venda~~~~~~");
-        System.out.print("Informe o CPF do cliente: ");
-        String cpf = entrada.nextLine();
+
+        String cpf;
+        do{
+            System.out.print("Informe o CPF do cliente: ");
+            cpf = entrada.nextLine();
+
+            if(!verificarCpf(cpf)){
+                System.out.println("\nInforme um CPF válido!\n");
+            }
+
+        }while (!verificarCpf(cpf));
+
 
         if (!clientesCadastrados.containsKey(cpf)) {
             throw new UnsupportedOperationException("Cliente não encontrado! Realize o cadastro antes de prosseguir\n");
         }
 
-        System.out.print("Infome o e-mail do vendedor: ");
-        String email = entrada.nextLine();
+        String email;
+        do{
+            System.out.print("Informe o e-mail do vendedor: ");
+            email = entrada.nextLine();
+
+            if(!verificarEmail(email)){
+                System.out.println("\nInforme um e-mail válido!\n");
+            }
+
+        }while (!verificarEmail(email));
 
         if (!vendedoresCadastrados.containsKey(email)) {
             throw new UnsupportedOperationException("Vendedor não encontrado! Realize o cadastro antes de prosseguir\n");
@@ -167,7 +190,7 @@ public class ControleSistema {
             for (Map.Entry<String, Vendedor> vendedor: vendedoresCadastrados.entrySet()){
                 System.out.println("Nome: " + vendedor.getValue().getNome() +
                         "\t| CPF: " + vendedor.getValue().getCpf() +
-                        "\t| E-mail: " + vendedor.getKey() + "\n");
+                        "\t| E-mail: " + vendedor.getKey());
             }
         }
     }
@@ -190,8 +213,16 @@ public class ControleSistema {
         System.out.print("Informe o nome: ");
         String nome = entrada.nextLine();
 
-        System.out.print("Informe o CPF: ");
-        String cpf = entrada.nextLine();
+        String cpf;
+        do{
+            System.out.print("Informe o CPF: ");
+            cpf = entrada.nextLine();
+
+            if(!verificarCpf(cpf)){
+                System.out.println("\nInforme um CPF válido!\n");
+            }
+
+        }while (!verificarCpf(cpf));
 
         if(clientesCadastrados.containsKey(cpf)){
             throw new UnsupportedOperationException("CPF já cadastrado!\n");
@@ -202,11 +233,11 @@ public class ControleSistema {
             System.out.print("Informe o e-mail: ");
             email = entrada.nextLine();
 
-            if(!email.contains("@")){
+            if(!verificarEmail(email)){
                 System.out.println("\nInforme um e-mail válido!\n");
             }
 
-        }while (!email.contains("@"));
+        }while (!verificarEmail(email));
 
         for (Map.Entry<String, Cliente> cliente : clientesCadastrados.entrySet()){
             if(Objects.equals(cliente.getValue().getEmail(), email)){
@@ -214,7 +245,21 @@ public class ControleSistema {
             }
         }
 
-        Cliente cliente = new Cliente(nome,cpf, email);
+        String senha;
+        do{
+            System.out.print("Crie uma senha: ");
+            senha = entrada.nextLine();
+
+            if(!senha.matches(senhaValida)){
+                System.out.println("\nA senha deve conter de 8 a 20 caracteres, com numeros, caracteres especiais, letras maiúsculas e minúsculas\n");
+            }
+
+        }while (!senha.matches(senhaValida));
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String senhaCriptografada = encoder.encode(senha);
+
+        Cliente cliente = new Cliente(nome,cpf, email, senhaCriptografada);
         clientesCadastrados.put(cpf,cliente);
 
         System.out.println("\nCliente cadastrado com sucesso!");
@@ -225,8 +270,16 @@ public class ControleSistema {
         System.out.print("Informe o nome: ");
         String nome = entrada.nextLine();
 
-        System.out.print("Informe o CPF: ");
-        String cpf = entrada.nextLine();
+        String cpf;
+        do{
+            System.out.print("Informe o CPF: ");
+            cpf = entrada.nextLine();
+
+            if(!verificarCpf(cpf)){
+                System.out.println("\nInforme um CPF válido!\n");
+            }
+
+        }while (!verificarCpf(cpf));
 
         for (Map.Entry<String, Vendedor> vendedor: vendedoresCadastrados.entrySet()){
             if(Objects.equals(vendedor.getValue().getCpf(), cpf)){
@@ -239,25 +292,47 @@ public class ControleSistema {
             System.out.print("Informe o e-mail: ");
             email = entrada.nextLine();
 
-            if(!email.contains("@")){
+            if(!verificarEmail(email)){
                 System.out.println("\nInforme um e-mail válido!\n");
             }
 
-        }while (!email.contains("@"));
+        }while (!verificarEmail(email));
 
         if(vendedoresCadastrados.containsKey(email)){
             throw new UnsupportedOperationException("E-mail já cadastrado!\n");
         }
 
-        Vendedor vendedor = new Vendedor(nome,cpf, email);
+        String senha;
+        do{
+            System.out.print("Crie uma senha: ");
+            senha = entrada.nextLine();
+
+            if(!senha.matches(senhaValida)){
+                System.out.println("\nA senha deve conter de 8 a 20 caracteres, com numeros, caracteres especial, letras maiúsculas e minúsculas\n");
+            }
+
+        }while (!senha.matches(senhaValida));
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String senhaCriptografada = encoder.encode(senha);
+
+        Vendedor vendedor = new Vendedor(nome,cpf, email, senhaCriptografada);
         vendedoresCadastrados.put(email,vendedor);
 
         System.out.println("\nVendedor cadastrado com sucesso!");
     }
 
     public static void pesquisarComprasCliente(){
-        System.out.println("Informe o CPF do cliente: ");
-        String cpf = entrada.nextLine();
+        String cpf;
+        do{
+            System.out.print("Informe o CPF do cliente: ");
+            cpf = entrada.nextLine();
+
+            if(!verificarCpf(cpf)){
+                System.out.println("\nInforme um CPF válido!\n");
+            }
+
+        }while (!verificarCpf(cpf));
 
         if(!clientesCadastrados.containsKey(cpf)){
             throw new IllegalArgumentException("Cliente não encontrado!\n");
@@ -272,16 +347,143 @@ public class ControleSistema {
             System.out.print("Informe o e-mail do vendedor: ");
             email = entrada.nextLine();
 
-            if(!email.contains("@")){
+            if(!verificarEmail(email)){
                 System.out.println("\nInforme um e-mail válido!\n");
             }
 
-        }while (!email.contains("@"));
+        }while (!verificarEmail(email));
 
         if(!vendedoresCadastrados.containsKey(email)){
             throw new IllegalArgumentException("Vendedor não encontrado!\n");
         } else {
             listarVendas(vendedoresCadastrados.get(email).getListaVendas(), "Vendedor");
+        }
+    }
+
+    public static void loginCliente(){
+        if(clientesCadastrados.isEmpty()){
+            System.out.println("Realize o cadastro antes de prosseguir");
+        } else {
+            String cpf;
+            do{
+                System.out.print("Informe o CPF: ");
+                cpf = entrada.nextLine();
+
+                if(!verificarCpf(cpf)){
+                    System.out.println("\nInforme um CPF válido!\n");
+                }
+
+            }while (!verificarCpf(cpf));
+
+            if(clientesCadastrados.containsKey(cpf)){
+                System.out.print("Digite a senha: ");
+                String senha = entrada.nextLine();
+
+                String senhaCriptografada = clientesCadastrados.get(cpf).getSenha();
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+                if(encoder.matches(senha, senhaCriptografada)){
+                    usuarioAutenticado("Cliente");
+                } else System.out.println("Senha incorreta");
+            } else System.out.println("CPF não cadastrado");
+        }
+    }
+
+    public static void loginVendedor(){
+        if(vendedoresCadastrados.isEmpty()){
+            System.out.println("Realize o cadastro antes de prosseguir");
+        } else {
+
+            String email;
+            do{
+                System.out.print("Informe o e-mail: ");
+                email = entrada.nextLine();
+
+                if(!verificarEmail(email)){
+                    System.out.println("\nInforme um e-mail válido!\n");
+                }
+
+            }while (!verificarEmail(email));
+
+            if (vendedoresCadastrados.containsKey(email)){
+                System.out.print("Digite a senha: ");
+                String senha = entrada.nextLine();
+
+                String senhaCriptografada = vendedoresCadastrados.get(email).getSenha();
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+                if(encoder.matches(senha, senhaCriptografada)){
+                    usuarioAutenticado("Vendedor");
+                } else System.out.println("Senha incorreta");
+            } else System.out.println("E-mail não cadastrado");
+        }
+    }
+
+    public static boolean verificarEmail(String email) {
+        try {
+            InternetAddress emailAddr = new InternetAddress(email);
+            emailAddr.validate();
+            return true;
+        } catch (AddressException ex) {
+            return false;
+        }
+    }
+
+    private static boolean verificarCpf(String cpf) {
+        try{
+            CPFValidator cpfValidator = new CPFValidator();
+            cpfValidator.assertValid(cpf);
+            return true;
+        }catch(Exception e){
+            return false;
+        }
+    }
+
+    private static void usuarioAutenticado(String tipo){
+        while (true){
+            System.out.println("\n----------- SISTEMA DE VENDAS -----------");
+            System.out.println("""
+                    \t1 - Cadastrar Venda
+                    \t2 - Listar Vendas Cadastradas
+                    \t3 - Listar Vendedores Cadastrados
+                    \t4 - Listar Clientes Cadastrados
+                    \t5 - Pesquisar Compras de um Cliente
+                    \t6 - Pesquisar Vendas de um Vendedor
+                    \t7 - Sair
+                    """);
+
+            int opcao = entrada.nextInt();
+            entrada.nextLine();
+            try {
+                switch (opcao){
+                    case 1:
+                        if(tipo.equals("Vendedor")){
+                            cadastrarVenda();
+                        } else System.out.println("Você não possui autorização");
+                        break;
+                    case 2:
+                        ControleSistema.listarVendas();
+                        break;
+                    case 3:
+                        ControleSistema.listarVendedores();
+                        break;
+                    case 4:
+                        ControleSistema.listarClientes();
+                        break;
+                    case 5:
+                        ControleSistema.pesquisarComprasCliente();
+                        break;
+                    case 6:
+                        ControleSistema.pesquisarComprasVendedor();
+                        break;
+                    case 7:
+                        return;
+                    default:
+                        throw new IllegalArgumentException("Opcão inválida!");
+                }
+            } catch (IllegalArgumentException | UnsupportedOperationException erro){
+                System.err.println(erro.getMessage());
+            }
         }
     }
 }
